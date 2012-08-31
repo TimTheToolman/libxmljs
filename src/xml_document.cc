@@ -135,6 +135,16 @@ XmlDocument::FromHtml(const v8::Arguments& args)
 {
     v8::HandleScope scope;
 
+    // we expect an options object
+    assert(args.Length() > 1);
+    assert(args[1]->IsObject());
+
+    v8::Local<v8::Object> options = args[1]->ToObject();
+
+    // if there is no such value in the option it will result in a null string
+    v8::String::Utf8Value baseUrl(options->Get(v8::String::NewSymbol("baseUrl")));
+    v8::String::Utf8Value encoding(options->Get(v8::String::NewSymbol("encoding")));
+
     v8::Local<v8::Array> errors = v8::Array::New();
     xmlResetLastError();
     xmlSetStructuredErrorFunc(reinterpret_cast<void *>(*errors),
@@ -142,15 +152,16 @@ XmlDocument::FromHtml(const v8::Arguments& args)
 
     htmlDocPtr doc;
     if (!node::Buffer::HasInstance(args[0])) {
-      // Parse a string
-      v8::String::Utf8Value str(args[0]->ToString());
-      doc = htmlReadMemory(*str, str.length(), NULL, NULL, 0);
+        // Parse a string
+        v8::String::Utf8Value str(args[0]->ToString());
+        doc = htmlReadMemory(*str, str.length(),
+                baseUrl.operator*(), encoding.operator*(), 0);
     }
     else {
-      // Parse a buffer
-      v8::Local<v8::Object> buf = args[0]->ToObject();
-      doc = htmlReadMemory(node::Buffer::Data(buf), node::Buffer::Length(buf),
-                           NULL, NULL, 0);
+        // Parse a buffer
+        v8::Local<v8::Object> buf = args[0]->ToObject();
+        doc = htmlReadMemory(node::Buffer::Data(buf), node::Buffer::Length(buf),
+                baseUrl.operator*(), encoding.operator*(), 0);
     }
 
     xmlSetStructuredErrorFunc(NULL, NULL);
