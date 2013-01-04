@@ -129,7 +129,7 @@ XMLPUBFUN void XMLCALL xmlCheckVersion(int version);
  *
  * Whether the xmlReader parsing interface is configured in
  */
-#if 1
+#if 0
 #define LIBXML_READER_ENABLED
 #endif
 
@@ -147,7 +147,7 @@ XMLPUBFUN void XMLCALL xmlCheckVersion(int version);
  *
  * Whether the xmlWriter saving interface is configured in
  */
-#if 1
+#if 0
 #define LIBXML_WRITER_ENABLED
 #endif
 
@@ -165,7 +165,7 @@ XMLPUBFUN void XMLCALL xmlCheckVersion(int version);
  *
  * Whether the FTP support is configured in
  */
-#if 1
+#if 0
 #define LIBXML_FTP_ENABLED
 #endif
 
@@ -174,7 +174,7 @@ XMLPUBFUN void XMLCALL xmlCheckVersion(int version);
  *
  * Whether the HTTP support is configured in
  */
-#if 1
+#if 0
 #define LIBXML_HTTP_ENABLED
 #endif
 
@@ -264,7 +264,7 @@ XMLPUBFUN void XMLCALL xmlCheckVersion(int version);
  *
  * Whether iconv support is available
  */
-#if 1
+#if 0
 #define LIBXML_ICONV_ENABLED
 #endif
 
@@ -363,7 +363,7 @@ XMLPUBFUN void XMLCALL xmlCheckVersion(int version);
  *
  * Whether the Schematron validation interfaces are compiled in
  */
-#if 1
+#if 0
 #define LIBXML_SCHEMATRON_ENABLED
 #endif
 
