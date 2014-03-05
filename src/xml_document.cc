@@ -7,6 +7,9 @@
 
 #include <libxml/HTMLparser.h>
 #include <libxml/xmlschemas.h>
+#include <stdio.h>
+#include <string.h>
+#include <iostream>
 
 #include "xml_document.h"
 #include "xml_element.h"
@@ -279,15 +282,24 @@ XmlDocument::FromXml(const v8::Arguments& args)
     return scope.Close(doc_handle);
 }
 
+void err(void* ctxt, const char *msg, ...)
+{
+		va_list ap;
+		va_start(ap, msg);
+			 vsnprintf((char*)ctxt, 2048, msg, ap);
+		va_end(ap);
+		
+}
+
 v8::Handle<v8::Value>
 XmlDocument::Validate(const v8::Arguments& args)
 {
     v8::HandleScope scope;
-
+	char errs[2048];
     v8::Local<v8::Array> errors = v8::Array::New();
     xmlResetLastError();
-    xmlSetStructuredErrorFunc(reinterpret_cast<void *>(*errors),
-            XmlSyntaxError::PushToArray);
+    //xmlSetStructuredErrorFunc(reinterpret_cast<void *>(*errors),
+           // XmlSyntaxError::PushToArray);
 
     XmlDocument* document = ObjectWrap::Unwrap<XmlDocument>(args.Holder());
     XmlDocument* documentSchema = ObjectWrap::Unwrap<XmlDocument>(args[0]->ToObject());
@@ -297,6 +309,9 @@ XmlDocument::Validate(const v8::Arguments& args)
         return v8::ThrowException(v8::Exception::Error(
             v8::String::New("Could not create context for schema parser")));
     }
+	
+
+	
     xmlSchemaPtr schema = xmlSchemaParse(parser_ctxt);
     if (schema == NULL) {
         return v8::ThrowException(v8::Exception::Error(
@@ -307,9 +322,12 @@ XmlDocument::Validate(const v8::Arguments& args)
         return v8::ThrowException(v8::Exception::Error(
             v8::String::New("Unable to create a validation context for the schema")));
     }
-    bool valid = xmlSchemaValidateDoc(valid_ctxt, document->xml_obj) == 0;
-
-    return scope.Close(v8::Boolean::New(valid));
+    xmlSchemaSetValidErrors( valid_ctxt, (xmlSchemaValidityErrorFunc) err, NULL, (void *) errs);
+	bool valid = xmlSchemaValidateDoc(valid_ctxt, document->xml_obj) == 0;
+	if(valid)
+		return scope.Close(v8::Boolean::New(valid));
+	else
+		return scope.Close(v8::String::New((char*)errs, strlen(errs)));
 }
 
 /// this is a blank object with prototype methods
